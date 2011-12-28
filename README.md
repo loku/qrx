@@ -15,7 +15,7 @@
 ## Installation
 
 ### Prerequisites
-`sitequery` requires a redis installation see: http://redis.io/download
+`qrx` requires a redis installation see: http://redis.io/download
 
 ### npm install
 [sudo] npm install qrx
