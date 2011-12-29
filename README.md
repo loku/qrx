@@ -35,9 +35,9 @@ npm install qrx
 
 ## Usage
 
-*(From: /examples/hello-qrx.js)*
-
 ###Simple usage with 1 queue instance
+
+*(From: /examples/hello-qrx.js)*
 
 ```javascript
 // create a new queue with well known name
@@ -60,9 +60,10 @@ wq.completedObservable().Subscribe(function(completedWork){
   console.log('completed work', completedWork)
 })
 ```
-*(From: /test/qrx-test.js)*
 
 ### 1 Master/Multiple Slaves
+
+*(From: /test/qrx-test.js)*
 
 ```javascript
 var wqMaster = new WorkQueueRx('clean-test2');
