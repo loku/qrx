@@ -7,7 +7,8 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
   var wq = new WorkQueueRx('clean-test');
   wq.clear();
 
-  var WORK_COUNT = 500
+  var WORK_COUNT = 500;
+  console.log('Test WorkCount', WORK_COUNT);
   for(var i=0; i < WORK_COUNT; i++){
     wq.enqueue(i);
   }
@@ -31,23 +32,34 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
 }
 
 
-exports.testWorkQueueRx = function(beforeExit, assert) {
-  var wq = new WorkQueueRx('clean-test');
-  wq.clear();
 
-  var WORK_COUNT = 500
+exports.multiWorkQueueRx = function(beforeExit, assert) {
+  var wqMaster = new WorkQueueRx('clean-test2');
+  wqMaster.clear();
+
+  var WORK_COUNT = 500;
+  console.log('Test WorkCount', WORK_COUNT);
   for(var i=0; i < WORK_COUNT; i++){
-    wq.enqueue(i);
+    wqMaster.enqueue(i);
   }
   
+  // two slaves serving 1 master
   var workReceived = 0;
-  wq.workObservable().Subscribe(function(workObj){
+  var slave1 = new WorkQueueRx('clean-test2');
+  slave1.workObservable().Subscribe(function(workObj){
     workReceived++;
     workObj.callback(null, workObj.work + 3);
   });
-
+  
+  var slave2 = new WorkQueueRx('clean-test2');
+  slave2.workObservable().Subscribe(function(workObj){
+    workReceived++;
+    workObj.callback(null, workObj.work + 3);
+  });
+  
+  // master get's his work
   var completedWorkCount = 0;
-  wq.completedObservable().Subscribe(function(completedWork){
+  wqMaster.completedObservable().Subscribe(function(completedWork){
     completedWorkCount++;
     assert.equal((completedWork.completedWork - completedWork.work) == 3, true);
   })
@@ -58,8 +70,7 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
   })
 }
 
-
-setTimeout(function(){process.exit(0)}, 2000);
+setTimeout(function(){process.exit(0)}, 5000);
 
 
 

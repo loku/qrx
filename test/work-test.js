@@ -60,6 +60,24 @@ exports.testWorkItemEnqueue = function(beforeExit, assert){
 }
 
 
+exports.testWorkItemEmpty = function(beforeExit, assert){
+  var wq = new WorkQueue(uuid.v1(), rc);
+  var testItem = new WorkItem('foo');
+  wq.enqueue(testItem, function(e,o){
+    assert.isNull(e);
+    wq.queueLength(function(e,l){
+      assert.equal(l,1);
+    });
+    wq.empty(function(e, _){
+      assert.isNull(e);
+      wq.queueLength(function(e, l){
+        assert.equal(l,0);
+      });
+    });    
+  });
+}
+
+
 exports.testWorkSet = function(beforeExit, assert){
   var wi = new WorkItem('foo');
   var testSet = new WorkSet(uuid.v1(), rc);
