@@ -1,21 +1,13 @@
 // ToDo: Add fork may example
 
-var Rx = require('rx').Rx;
-var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;   
+var forkmany = require('../lib/forkmany');
+var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;  
 
-/**
- * Forking Rx combinator that projects reactive stream onto distributed
- * work queue
- */
-Rx.Observable.prototype.ForkMany = function(qname, redisOpts){
-  var q = new WorkQueueRx(qname, redisOpts)
-  return this.SelectMany(function(r){
-    q.enqueue(r);
-    return q.completedObservable();
-  });
-}
+// add the forkmany combinator
+var Rx = forkmany.extendRx(require('rx').Rx);
 
 Rx.Observable.FromArray([1,2,3])
+  // ForkMany usage
   .ForkMany('test-q')
     .Subscribe(function(result){
       console.log(result);
