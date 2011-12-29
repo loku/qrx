@@ -1,9 +1,8 @@
-// ToDo: Add fork may example
 
 var forkmany = require('../lib/forkmany');
 var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;  
 
-// add the forkmany combinator
+// add the forkmany combinator to Rx
 var Rx = forkmany.extendRx(require('rx').Rx);
 
 Rx.Observable.FromArray([1,2,3])
@@ -16,4 +15,4 @@ Rx.Observable.FromArray([1,2,3])
 var worker = new WorkQueueRx('test-q');
 worker.workObservable().Subscribe(function(workItem){
   workItem.callback(null, workItem.work + 1);
-})
+});

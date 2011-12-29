@@ -98,6 +98,26 @@ wqMaster.completedObservable().Subscribe(function(workItem){
   
 ```
 
+### ForkMany combinator extension to Rx
+
+*(From: /examples/fork-many.js)*
+
+```javascript
+
+Rx.Observable.FromArray([1,2,3])
+  // ForkMany usage
+  .ForkMany('test-q')
+    .Subscribe(function(result){
+      console.log(result);
+    });
+
+var worker = new WorkQueueRx('test-q');
+worker.workObservable().Subscribe(function(workItem){
+  workItem.callback(null, workItem.work + 1);
+});
+```
+
+
 ## ToDo
 * Work stop singals
 * Enable transactional queueing using redis primatives
