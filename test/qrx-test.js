@@ -46,29 +46,48 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
   // two slaves serving 1 master
   var workReceived = 0;
   var slave1 = new WorkQueueRx('clean-test2');
+ 
+  var stopCount = 0;
   slave1.workObservable().Subscribe(function(workObj){
     workReceived++;
     workObj.callback(null, workObj.work + 3);
+  }, 
+  function(exn){},
+  function(){
+    stopCount++;
   });
   
   var slave2 = new WorkQueueRx('clean-test2');
   slave2.workObservable().Subscribe(function(workObj){
     workReceived++;
-    workObj.callback(null, workObj.work + 3);
+    workObj.callback(null, workObj.work + 3)
+  },
+  function(exn){},
+  function(){
+    stopCount++;
   });
   
   // master get's his work
   var completedWorkCount = 0;
+  
+
   wqMaster.completedObservable().Subscribe(function(completedWork){
     completedWorkCount++;
     assert.equal((completedWork.completedWork - completedWork.work) == 3, true);
+    if (completedWorkCount == WORK_COUNT){
+      // stop the slaves
+      wqMaster.stop();
+    }
   })
+  
   
   beforeExit(function(){
     assert.equal(workReceived, WORK_COUNT);
     assert.equal(completedWorkCount, WORK_COUNT);
   })
 }
+
+
 
 setTimeout(function(){process.exit(0)}, 5000);
 
