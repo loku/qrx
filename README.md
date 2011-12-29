@@ -36,7 +36,7 @@ npm install qrx
 ## Usage
 *(From: /examples/hello-qrx.js)*
 
-Allows you to crawl to a depth of *n* into a website
+Simple usage with 1 queue instance
 
 ```javascript
 // create a new queue with well known name
@@ -59,9 +59,40 @@ wq.completedObservable().Subscribe(function(completedWork){
   console.log('completed work', completedWork)
 })
 ```
+*(From: /test/qrx-test.js)*
+1 Master/Multiple Slaves
+```javascript
+var wqMaster = new WorkQueueRx('clean-test2');
 
+var WORK_COUNT = 500;
 
-## Credits
+console.log('Test WorkCount', WORK_COUNT);
+for(var i=0; i < WORK_COUNT; i++){
+  wqMaster.enqueue(i);
+}
+
+// two slaves serving 1 master
+var workReceived = 0;
+var slave1 = new WorkQueueRx('clean-test2');
+slave1.workObservable().Subscribe(function(workObj){
+  workReceived++;
+  workObj.callback(null, workObj.work + 3);
+});
+
+var slave2 = new WorkQueueRx('clean-test2');
+slave2.workObservable().Subscribe(function(workObj){
+  workReceived++;
+  workObj.callback(null, workObj.work + 3);
+});
+
+// master get's his work
+var completedWorkCount = 0;
+wqMaster.completedObservable().Subscribe(function(workItem){
+  completedWorkCount++;
+  console.log('Completed Work', workItem.completedWork);
+})
+  
+```
 
 ## ToDo
 * Work stop singals
