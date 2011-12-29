@@ -11,8 +11,17 @@
 *A distributed work queue for node.js based on redis and RxJS.*
 
 ## Overview
+'qrx' provides reactive work queue implemented with redis and RxJS. The
+goals of the project:
+
+* enable shared asynchronous compute resources on top a native node.js technology stack.
+* focus on minimalism
+* ease of installation (redis and on node are easy)
+* practical performance: Approach near raw redis performance levels with queuing primitives
 
 ## Installation
+
+npm install qrx
 
 ### Prerequisites
 `qrx` requires a redis installation see: http://redis.io/download
@@ -21,12 +30,19 @@
 [sudo] npm install qrx
 
 ## Features
+* Create a queue with name
+* Enable async compute resource 
 
 ## Usage
+
 
 ## Credits
 
 ## ToDo
+* Work stop singals
+* Enable transactional queueing using redis primatives
+* Performance optimization
+* Flood control on queue restarts
 
 ## License ##
 
