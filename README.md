@@ -14,10 +14,10 @@
 'qrx' provides reactive work queue implemented with redis and RxJS. The
 goals of the project:
 
-* enable shared asynchronous compute resources on top a native node.js technology stack.
-* focus on minimalism
-* ease of installation (redis and on node are easy)
-* practical performance: Approach near raw redis performance levels with queuing primitives
+* Enable shared asynchronous compute resources on top a native node.js technology stack.
+* Focus on minimalism
+* Ease of installation (redis and on node are easy)
+* Practical performance: Approach near raw redis performance levels with queuing primitives
 
 ## Installation
 
