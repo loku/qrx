@@ -124,6 +124,7 @@ worker.workObservable().Subscribe(function(workItem){
 * Enable transactional queueing using redis primatives
 * Performance optimization
 * Flood control on queue restarts
+* Add semantics for repeated work sent to workers, where the work doesn't callback
 
 ## License ##
 
