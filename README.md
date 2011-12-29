@@ -18,6 +18,7 @@ goals of the project:
 * Focus on minimalism
 * Ease of installation (redis and on node are easy)
 * Practical performance: Approach near raw redis performance levels with queuing primitives
+* Leverage Reactive combinator abstraction for modeling asynchronous distributed computing
 
 ## Installation
 
