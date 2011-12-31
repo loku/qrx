@@ -1,6 +1,6 @@
 
-var forkmany = require('../lib/forkmany');
-var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;  
+var forkmany = require('../lib/rx-extensions');
+var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;  
 
 // add the forkmany combinator to Rx
 var Rx = forkmany.extendRx(require('rx').Rx);

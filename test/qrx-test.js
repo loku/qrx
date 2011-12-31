@@ -1,7 +1,8 @@
 var redis = require('redis'),
     Rx = require('rx').Rx,
     uuid = require('node-uuid');
-var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;   
+var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;   
+
 
 exports.testWorkQueueRx = function(beforeExit, assert) {
   var wq = new WorkQueueRx('clean-test');
@@ -76,7 +77,7 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
     assert.equal((completedWork.completedWork - completedWork.work) == 3, true);
     if (completedWorkCount == WORK_COUNT){
       // stop the slaves
-      wqMaster.stop();
+      //wqMaster.stop();
     }
   })
   
@@ -89,7 +90,7 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
 
 
 
-setTimeout(function(){process.exit(0)}, 5000);
+setTimeout(function(){process.exit(0)}, 10000);
 
 
 

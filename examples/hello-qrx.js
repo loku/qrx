@@ -3,7 +3,7 @@ var redis = require('redis'),
     uuid = require('node-uuid');
 
 
-var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;   
+var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;   
 
 // create a new queue with well known name
 wq = new WorkQueueRx('test-wq');
