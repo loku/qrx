@@ -32,8 +32,10 @@ npm install qrx
 [sudo] npm install qrx
 
 ## Features
-* Create a queue with name
-* Enable async compute resource 
+* Easily create a queue with name
+* Enable async compute resource using Rx primatives
+* Cluster support
+* Leverage redis high performance pub/sub
 
 ## Usage
 
