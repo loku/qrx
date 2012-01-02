@@ -132,6 +132,7 @@ worker.workObservable().Subscribe(function(workItem){
 * Add semantics for repeated work sent to workers, where the work doesn't callback
 * Add support for asynchronous work subscribers with incremental results
 * Add JoinMany operator to re-sequence completed with (with timeout)
+* Add queue management and monitoring UI
 
 ## License ##
 
