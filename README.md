@@ -19,6 +19,7 @@ goals of the project:
 * Ease of installation (redis and on node are easy)
 * Practical performance: Approach near raw redis performance levels with queuing primitives
 * Leverage Reactive combinator abstraction for modeling asynchronous distributed computing
+* Fully asynchronous semantics
 
 ## Installation
 
@@ -120,11 +121,14 @@ worker.workObservable().Subscribe(function(workItem){
 
 
 ## ToDo
-* Work stop singals
+* ~~Work stop singals~~
 * Enable transactional queueing using redis primatives
 * Performance optimization
+  * Refactor to remove SelectMany and borrow timeline from message notification
+  * Investigage why redis client is holding only memory
 * Flood control on queue restarts
 * Add semantics for repeated work sent to workers, where the work doesn't callback
+* Add support for asynchronous work subscribers with incremental results
 
 ## License ##
 
