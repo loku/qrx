@@ -47,7 +47,8 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
   // two slaves serving 1 master
   var workReceived = 0;
   var slave1 = new WorkQueueRx('clean-test2');
- 
+
+  // count of # of workers who have recvd stop
   var stopCount = 0;
   slave1.workObservable().Subscribe(function(workObj){
     workReceived++;
@@ -70,27 +71,41 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
   
   // master get's his work
   var completedWorkCount = 0;
+  var errCount = 0;
+  var allWorkCompletedSignal = false;
   
-
   wqMaster.completedObservable().Subscribe(function(completedWork){
     completedWorkCount++;
     assert.equal((completedWork.completedWork - completedWork.work) == 3, true);
     if (completedWorkCount == WORK_COUNT){
-      // stop the slaves
-      //wqMaster.stop();
+      wqMaster.stop();
     }
-  })
+  },
+  function(err){
+    console.log('some error');
+    errCount++;
+  },
+  function(){
+    console.log('all work completed');
+    allWorkCompletedSignal = true;
+  });
   
   
   beforeExit(function(){
+    console.log('verify all work received.');
     assert.equal(workReceived, WORK_COUNT);
+    console.log('verify all work completed.');
     assert.equal(completedWorkCount, WORK_COUNT);
+    console.log('verify completed recieved complete.');
+    assert.equal(allWorkCompletedSignal, true);
+    console.log('verify that all workers have been stopped')
+    assert.equal(stopCount, 2);
   })
 }
 
 
 
-setTimeout(function(){process.exit(0)}, 10000);
+setTimeout(function(){process.exit(0)}, 5000);
 
 
 
