@@ -129,6 +129,7 @@ worker.workObservable().Subscribe(function(workItem){
 * Flood control on queue restarts
 * Add semantics for repeated work sent to workers, where the work doesn't callback
 * Add support for asynchronous work subscribers with incremental results
+* Add JoinMany operator to re-sequence completed with (with timeout)
 
 ## License ##
 
