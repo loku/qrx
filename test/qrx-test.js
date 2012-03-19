@@ -128,7 +128,6 @@ exports.thottleTest = function(beforeExit, assert) {
   var stopCount = 0;
   slave1.workObservable().Subscribe(function(workObj){
     workInFlight1++;
-    console.log('work in flight 1:', workInFlight1, 'qrx work in flight:', slave1.workInFlight, 'qrx throttle', slave1.throttle);
     assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
     // do some work asynchronously
     setTimeout(function(){
@@ -200,9 +199,65 @@ exports.thottleTest = function(beforeExit, assert) {
 }
 
 
+exports.queueAllFirstTest = function(beforeExit, assert){
+  var wqMaster = new WorkQueueRx('queue-all-first-test');
+  wqMaster.clear();
+
+  var WORK_COUNT = 5000;
+  var workCompleted = 0;
+  var completedWorkCount = 0;
+  console.log('Test WorkCount', WORK_COUNT);
+  for(var i=0; i < WORK_COUNT; i++){
+    wqMaster.enqueue(i);
+  }
+
+  // two slaves serving 1 master
+  var workInFlight1 = 0;
+
+  var slave1 = new WorkQueueRx('queue-all-first-test', null);
+
+  // count of # of workers who have recvd stop
+  var stopCount = 0;
+
+  setTimeout(function(){
+    slave1.workObservable().Subscribe(function(workObj){
+    assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
+    // do some work asynchronously
+    setTimeout(function(){
+      workObj.callback(null, workObj.work + 3);
+      workCompleted++;
+    },1000);
+  },
+  function(exn){},
+  function(){
+    stopCount++;
+     console.log('verifying queueAllFirst');
+     console.log('verify all work received.');
+     assert.equal(workCompleted, WORK_COUNT);
+  });
+  }, 2000)
+
+  var allWorkCompleted = false;
+  wqMaster.completedObservable().Subscribe(function(completedWork){
+    completedWorkCount++;
+    assert.equal((completedWork.completedWork - completedWork.work) == 3, true);
+    if (completedWorkCount == WORK_COUNT){
+      wqMaster.stop();
+    }
+  },
+  function(err){
+    console.log('some error');
+    errCount++;
+  },
+  function(){
+    console.log('all work completed');
+    allWorkCompleted = true;
+  });
+}
 
 
-setTimeout(function(){process.exit(0)}, 15000);
+
+setTimeout(function(){process.exit(0)}, 20000);
 
 
 
