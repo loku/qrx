@@ -16,10 +16,14 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
   }
 
   var workReceived = 0;
-  wq.workObservable().Subscribe(function(workObj){
+
+  setTimeout(function(){
+
+    wq.workObservable().Subscribe(function(workObj){
     workReceived++;
     workObj.callback(null, workObj.work + 3);
-  });
+    });
+  },10000);
 
   var completedWorkCount = 0;
   wq.completedObservable().Subscribe(function(completedWork){
@@ -124,8 +128,8 @@ exports.thottleTest = function(beforeExit, assert) {
   var stopCount = 0;
   slave1.workObservable().Subscribe(function(workObj){
     workInFlight1++;
-    //console.log('work in flight 1:', workInFlight1, 'qrx work in flight:', slave1.workInFlight, 'qrx throttle', slave1.throttle);
-    assert.equal(workInFlight1 <= 20, true, 'in flight under throttle');
+    console.log('work in flight 1:', workInFlight1, 'qrx work in flight:', slave1.workInFlight, 'qrx throttle', slave1.throttle);
+    assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
     // do some work asynchronously
     setTimeout(function(){
       workObj.callback(null, workObj.work + 3);
@@ -198,7 +202,7 @@ exports.thottleTest = function(beforeExit, assert) {
 
 
 
-setTimeout(function(){process.exit(0)}, 5000);
+setTimeout(function(){process.exit(0)}, 15000);
 
 
 
