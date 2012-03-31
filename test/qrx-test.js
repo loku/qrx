@@ -214,13 +214,15 @@ exports.queueAllFirstTest = function(beforeExit, assert){
   // two slaves serving 1 master
   var workInFlight1 = 0;
 
-  var slave1 = new WorkQueueRx('queue-all-first-test', null);
+  var slave1 = new WorkQueueRx('queue-all-first-test', null, 10);
 
   // count of # of workers who have recvd stop
   var stopCount = 0;
 
   setTimeout(function(){
     slave1.workObservable().Subscribe(function(workObj){
+
+    console.log( 'qrx wif', slave1.getWorkInFlight());
     assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
     // do some work asynchronously
     setTimeout(function(){
