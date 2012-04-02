@@ -235,10 +235,9 @@ exports.queueAllFirstTest = function(beforeExit, assert){
   setTimeout(function(){
     slave1.workObservable().Subscribe(function(workObj){
     // do some work asynchronously
-    setTimeout(function(){
-      workObj.callback(null, workObj.work + 3);
-      workCompleted++;
-    },100);
+    workObj.callback(null, workObj.work + 3);
+    workCompleted++;
+
   },
   function(exn){},
   function(){
