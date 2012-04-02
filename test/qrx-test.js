@@ -6,25 +6,29 @@ var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;
 
 
 exports.testWorkQueueRx = function(beforeExit, assert) {
-  var wq = new WorkQueueRx('clean-test');
-  wq.clear();
+  console.log('Running test - testWorkQueueRx');
+
+  var qname = 'clean-test' + uuid.v1();
+
+  var wq = new WorkQueueRx(qname);
 
   var WORK_COUNT = 500;
-  console.log('Test WorkCount', WORK_COUNT);
+
   for(var i=0; i < WORK_COUNT; i++){
     wq.enqueue(i);
   }
 
   var workReceived = 0;
 
+  // wait some time for all work to be enqueued
   setTimeout(function(){
-
     wq.workObservable().Subscribe(function(workObj){
     workReceived++;
     workObj.callback(null, workObj.work + 3);
     });
-  },10000);
+  },5000);
 
+  // subscribe for completed work
   var completedWorkCount = 0;
   wq.completedObservable().Subscribe(function(completedWork){
     completedWorkCount++;
@@ -32,6 +36,7 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
   })
 
   beforeExit(function(){
+    console.log('validating test - testWorkQueueRx');
     assert.equal(workReceived, WORK_COUNT);
     assert.equal(completedWorkCount, WORK_COUNT);
   })
@@ -39,19 +44,22 @@ exports.testWorkQueueRx = function(beforeExit, assert) {
 
 
 
+
+
 exports.multiWorkQueueRx = function(beforeExit, assert) {
-  var wqMaster = new WorkQueueRx('clean-test2');
-  wqMaster.clear();
+  var qname = 'multiWorkQueueRx' + uuid.v1();
+  var wqMaster = new WorkQueueRx(qname);
 
   var WORK_COUNT = 500;
-  console.log('Test WorkCount', WORK_COUNT);
+  console.log('Running test - multiWorkQueueRx');
+
   for(var i=0; i < WORK_COUNT; i++){
     wqMaster.enqueue(i);
   }
 
   // two slaves serving 1 master
   var workReceived = 0;
-  var slave1 = new WorkQueueRx('clean-test2');
+  var slave1 = new WorkQueueRx(qname);
 
   // count of # of workers who have recvd stop
   var stopCount = 0;
@@ -64,7 +72,7 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
     stopCount++;
   });
 
-  var slave2 = new WorkQueueRx('clean-test2');
+  var slave2 = new WorkQueueRx(qname);
   slave2.workObservable().Subscribe(function(workObj){
     workReceived++;
     workObj.callback(null, workObj.work + 3)
@@ -95,8 +103,8 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
     allWorkCompletedSignal = true;
   });
 
-
   beforeExit(function(){
+    console.log('validating test - multiWorkQueueRx');
     console.log('verify all work received.');
     assert.equal(workReceived, WORK_COUNT);
     console.log('verify all work completed.');
@@ -108,9 +116,12 @@ exports.multiWorkQueueRx = function(beforeExit, assert) {
   })
 }
 
-exports.thottleTest = function(beforeExit, assert) {
-  var wqMaster = new WorkQueueRx('thottle-test');
-  wqMaster.clear();
+exports.throttleTest = function(beforeExit, assert) {
+  console.log('Runing test - throttleTest');
+
+  var qname = 'throttle-test' + uuid.v1();
+
+  var wqMaster = new WorkQueueRx(qname);
 
   var WORK_COUNT = 500;
   var workCompleted = 0;
@@ -119,15 +130,16 @@ exports.thottleTest = function(beforeExit, assert) {
     wqMaster.enqueue(i);
   }
 
-  // two slaves serving 1 master
+  // two slaves serving 1 master, with different throttles
   var workInFlight1 = 0;
 
-  var slave1 = new WorkQueueRx('thottle-test', null, 10);
+  var slave1 = new WorkQueueRx(qname, null, 10);
 
   // count of # of workers who have recvd stop
   var stopCount = 0;
   slave1.workObservable().Subscribe(function(workObj){
     workInFlight1++;
+
     assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
     // do some work asynchronously
     setTimeout(function(){
@@ -143,7 +155,7 @@ exports.thottleTest = function(beforeExit, assert) {
 
   var workInFlight2 = 0;
 
-  var slave2 = new WorkQueueRx('throttle-test', null, 20);
+  var slave2 = new WorkQueueRx(qname, null, 20);
   slave2.workObservable().Subscribe(function(workObj){
     workInFlight2++;
     assert.equal(workInFlight2 <= 20, true);
@@ -153,9 +165,6 @@ exports.thottleTest = function(beforeExit, assert) {
       workCompleted++;
       workInFlight2--;
     },100);
-
-
-
   },
   function(exn){},
   function(){
@@ -183,9 +192,9 @@ exports.thottleTest = function(beforeExit, assert) {
     allWorkCompletedSignal = true;
   });
 
-
   beforeExit(function(){
     setTimeout(function(){
+      console.log('validating test - throttleTest');
       console.log('verify all work received.');
       assert.equal(workCompleted, WORK_COUNT);
       console.log('verify all work completed.');
@@ -198,15 +207,19 @@ exports.thottleTest = function(beforeExit, assert) {
   })
 }
 
-
+/**
+ * Validate full q then subscription post everything is queued
+ */
 exports.queueAllFirstTest = function(beforeExit, assert){
-  var wqMaster = new WorkQueueRx('queue-all-first-test');
-  wqMaster.clear();
+  console.log('Runing test - queueAllFirstTest');
+  var qname = 'queueAllFirstTest' + uuid.v1();
 
-  var WORK_COUNT = 5000;
+  var wqMaster = new WorkQueueRx(qname);
+
+  var WORK_COUNT = 1000;
   var workCompleted = 0;
   var completedWorkCount = 0;
-  console.log('Test WorkCount', WORK_COUNT);
+
   for(var i=0; i < WORK_COUNT; i++){
     wqMaster.enqueue(i);
   }
@@ -214,30 +227,24 @@ exports.queueAllFirstTest = function(beforeExit, assert){
   // two slaves serving 1 master
   var workInFlight1 = 0;
 
-  var slave1 = new WorkQueueRx('queue-all-first-test', null, 10);
+  var slave1 = new WorkQueueRx(qname, null, 10);
 
   // count of # of workers who have recvd stop
   var stopCount = 0;
 
   setTimeout(function(){
     slave1.workObservable().Subscribe(function(workObj){
-
-    console.log( 'qrx wif', slave1.getWorkInFlight());
-    assert.equal(workInFlight1 <= 10, true, 'in flight under throttle');
     // do some work asynchronously
     setTimeout(function(){
       workObj.callback(null, workObj.work + 3);
       workCompleted++;
-    },1000);
+    },100);
   },
   function(exn){},
   function(){
     stopCount++;
-     console.log('verifying queueAllFirst');
-     console.log('verify all work received.');
-     assert.equal(workCompleted, WORK_COUNT);
   });
-  }, 2000)
+  }, 4000)
 
   var allWorkCompleted = false;
   wqMaster.completedObservable().Subscribe(function(completedWork){
@@ -248,18 +255,23 @@ exports.queueAllFirstTest = function(beforeExit, assert){
     }
   },
   function(err){
-    console.log('some error');
-    errCount++;
   },
   function(){
-    console.log('all work completed');
     allWorkCompleted = true;
   });
+
+  beforeExit(function(){
+    console.log('validating test - queueAllFirstTest');
+    console.log('verify all work completed.');
+    assert.equal(workCompleted, WORK_COUNT);
+    assert.equal(completedWorkCount, WORK_COUNT);
+  });
+
 }
 
 
 
-setTimeout(function(){process.exit(0)}, 20000);
+setTimeout(function(){process.exit(0)}, 30000);
 
 
 
