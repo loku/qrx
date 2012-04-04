@@ -290,7 +290,7 @@ exports.tooManyCallbacks = function(beforeExit, assert){
   beforeExit(function(){
     console.log('validating test - tooManyCallbacks');
     assert.eql(workCompleted, WORK_COUNT, 'all work received');
-    assert.eql(slave1.getWorkInFlight(), 0, 'work in flight is 0');
+    assert.eql(slave1.getWorkInFlight(), 0, 'work in flight is 0'); //TODO: this is no longer true since workInFlight is really something like callbacksInFlight
   });
 }
 
