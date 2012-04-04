@@ -268,9 +268,33 @@ exports.queueAllFirstTest = function(beforeExit, assert){
 
 }
 
+exports.tooManyCallbacks = function(beforeExit, assert){
+  console.log('Runing test - tooManyCallbacks');
+  var qname = 'tooManyCallbacks' + uuid.v1();
+  var wqMaster = new WorkQueueRx(qname);
 
+  var WORK_COUNT = 5;
+  for(var i=0; i < WORK_COUNT; i++){
+    wqMaster.enqueue(i);
+  }
 
-setTimeout(function(){process.exit(0)}, 30000);
+  var workCompleted = 0;
+  var slave1 = new WorkQueueRx(qname, null, 2);
+  slave1.workObservable().Subscribe(function(workObj){
+    workObj.callback(null, workObj.work + 3);
+    workObj.callback(null, workObj.work + 3);
+    workObj.callback(null, workObj.work + 3);
+    workCompleted++;
+  })
+
+  beforeExit(function(){
+    console.log('validating test - tooManyCallbacks');
+    assert.eql(workCompleted, WORK_COUNT, 'all work received');
+    assert.eql(slave1.getWorkInFlight(), 0, 'work in flight is 0');
+  });
+}
+
+setTimeout(function(){process.exit(0)}, 20000);
 
 
 
