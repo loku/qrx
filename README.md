@@ -10,6 +10,8 @@
 
 *A distributed work queue for node.js based on redis and RxJS.*
 
+[![Build Status](https://secure.travis-ci.org/loku/qrx.png?branch=master)](http://travis-ci.org/loku/qrx)
+
 ## Overview
 'qrx' provides reactive work queue implemented with redis and RxJS. The
 goals of the project:
