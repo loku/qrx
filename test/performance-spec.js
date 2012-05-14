@@ -1,22 +1,22 @@
-redis = require('redis');
+//redis = require('redis');
+//
+//
+//var work  = require('../lib/work.js'),
+//    WorkItem = work.WorkItem,
+//    WorkQueue = work.WorkQueue,
+//    WorkSet = work.WorkSet;
+//
+//var Channel  = require('../lib/channels.js').Channel;
+//
+//var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;
 
-
-var work  = require('../lib/work.js'),
-    WorkItem = work.WorkItem,
-    WorkQueue = work.WorkQueue,
-    WorkSet = work.WorkSet;
-    
-var Channel  = require('../lib/channels.js').Channel;
-
-var WorkQueueRx  = require('../lib/qrx.js').WorkQueueRx;   
-
-client = redis.createClient();
-console.log('Raw redis queueing with list.')
-start = Date.now()
-for(var i = 0; i < 1000000; i++) {
-  client.rpush('test-p', 'foo');
-}
-console.log('Total time:', Date.now() - start + " ms");
+//client = redis.createClient();
+//console.log('Raw redis queueing with list.')
+//start = Date.now()
+//for(var i = 0; i < 1000000; i++) {
+//  client.rpush('test-p', 'foo');
+//}
+//console.log('Total time:', Date.now() - start + " ms");
 
 //console.log('WorkQueue: Redis list wrapper for queueing')
 //start = Date.now()
