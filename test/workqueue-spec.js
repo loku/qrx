@@ -7,13 +7,14 @@ var redis = require('redis'),
 
 
 var WorkQueue  = require('../lib/workqueue').WorkQueue,
-    WorkItem = require('../lib/workitem').WorkItem;
+    WorkItem = require('../lib/workitem');
 
 
 describe('WorkQueue', function() {
   it ('should enqueue work item', function() {
     var wq = new WorkQueue(uuid.v1());
-    var workItem = new WorkItem('foo');
+    
+    var workItem = new WorkItem({work: 'foo'});
     return Q.node(wq.enqueue, wq, workItem)()
     .then(function(){
       return Q.node(wq.length, wq)();

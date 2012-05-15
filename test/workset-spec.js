@@ -6,12 +6,12 @@ var redis = require('redis'),
     Q = require('q');
 
 
-var WorkItem = require('../lib/workitem').WorkItem,
+var WorkItem = require('../lib/workitem'),
     WorkSet = require('../lib/workset').WorkSet;
 
 describe('WorkSet', function(){
   it('should be add, size the set and remove and item by id', function(){
-    var wi = new WorkItem('foo');
+    var wi = new WorkItem({work:'foo'});
     var testSet = new WorkSet(uuid.v1());
     Q.node(testSet.addToSet, testSet, wi)()
     .then(function(){

@@ -5,7 +5,7 @@ var expect = require('chai').expect,
     uuid = require('node-uuid');
 
 
-var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;
+var Qrx  = require('../lib/qrx');
 
 // creates promise to enqueue n count random work on a given q
 function testEnqueuePromise(wq, n) {
@@ -17,18 +17,22 @@ function testEnqueuePromise(wq, n) {
   return Q.all(promises);
 }
 
-function testWorkPromise(wq, n) {
+function testWorkPromise(wq, n, workTime) {
   // do some work
+  workTime = workTime || 0;
   var workReceived = 0;
   var workPromise = Q.defer();
-  wq.workObservable().Subscribe(function(workObj) {
-    workReceived++;
-    workObj.callback(null, workObj.work + 3);
-    if (workReceived == n) {
-
-      workPromise.resolve(workReceived)
-    } 
-  });
+  setTimeout( function(){
+                wq.workObservable().Subscribe(function(workObj) {
+                  workReceived++;
+                  workObj.callback(null, workObj.work + 3);
+                  if (workReceived == n) {
+                    workPromise.resolve(workReceived)
+                  }
+                });
+              },
+              _.isFunction(workTime) ? workTime() : workTime);
+  
   return workPromise.promise;
 }
 
@@ -67,8 +71,7 @@ describe('QRX', function(){
   it('should q all items, work on them, have correct results and complete',
     function() {
     var workCount = 10;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname);
+    var wq = new Qrx();
 
     // subscribe for completed work and check
     // results
@@ -81,14 +84,13 @@ describe('QRX', function(){
   });
 
   it('should allow multiple workes for the same queue', function() {
-    var workCount = 1000;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname, null);
+    var workCount = 100;
+    var wq = new Qrx();
 
     // run two workers concurrently
     return Q.all([testEnqueuePromise(wq, workCount),
-                  testWorkPromise(wq, 50),
-                  testWorkPromise(wq, 50),
+                  testWorkPromise(wq, workCount/2),
+                  testWorkPromise(wq, workCount/2),
                   testCompletedPromise(wq, workCount, function(completedWork){
                     expect(completedWork.completedWork - completedWork.work).to.equal(3);
                   })]);
@@ -97,9 +99,9 @@ describe('QRX', function(){
 
   it('should honor the work and completed throttles', function() {
     var workCount = 10;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname, null, 5, 5);
-    
+    var wq = new Qrx({workThrottle: 5,
+                      completedThrottle: 5});
+
     var workInFlight = 0;
     var workDefer = Q.defer();
     var workCompleted = 0;
@@ -126,7 +128,7 @@ describe('QRX', function(){
     wq.completedObservable().Subscribe(function(completed) {
       completedInFlight++;
       completedCount++;
-      
+
       if (completedInFlight > 5) {
         throw 'tooManyInFlight: ' + completedInFlight;
       }
@@ -140,8 +142,7 @@ describe('QRX', function(){
 
   it ('should be able work on work sitting waiting in the queue before any subscription.', function() {
     var workCount = 20;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname);
+    var wq = new Qrx();
     return testEnqueuePromise(wq, workCount)
             .then(function(){
               return Q.all([testWorkPromise(wq, workCount),
@@ -150,8 +151,7 @@ describe('QRX', function(){
 
   it ('should ignore multiple complete calls only taking the first result for work', function(){
     var workCount = 3;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname);
+    var wq = new Qrx();
     var workReceived = 0;
     var deferredWork = Q.defer();
 
@@ -164,16 +164,14 @@ describe('QRX', function(){
         deferredWork.resolve(workReceived);
       }
     });
-    return Q.all([testEnqueuePromise(wq, workCount), 
+    return Q.all([testEnqueuePromise(wq, workCount),
                   deferredWork.promise,
                   testCompletedPromise(wq, workCount)]);
   });
-
-
-  it ('should error the timeout on work that exceeds the timeout value', function(){
-    var workCount = 10;
-    var qname = 'clean-test' + uuid.v1();
-    var wq = new WorkQueueRx(qname, null, 1, 1, 100);
+  
+  it ('should error the timeout on work that exceeds the timeout value', function() {
+    var workCount = 100;
+    var wq = new Qrx({workTimeout: 20});
 
     var workReceived = 0;
     var deferredWork = Q.defer();
@@ -208,4 +206,35 @@ describe('QRX', function(){
                   deferredWork.promise,
                   deferredCompleted.promise]);
   });
+
+
+  it ('should deliver queue statss', function() {
+    var workCount = 100  ;
+    var wq = new Qrx({workTimeout: 20});
+
+    var workReceived = 0;
+    var deferredWork = Q.defer();
+
+    var deferredStatsChecked = Q.defer();
+
+    wq.statsObservable(1000).Subscribe(function(stats){
+      // check that we received stats and they are populated
+      _.each(_.values(stats), function(entry) {
+        _.each(_.values(entry), function(stat) {
+          expect(stat != null).to.equal(true);
+         });
+      });
+      deferredStatsChecked.resolve(false);
+    })
+
+    return Q.all([testEnqueuePromise(wq, workCount),
+                  testWorkPromise(wq, workCount, function() {
+                    // randomly run jobs that take up to 50ms to run
+                    return Math.max(10, Math.round(Math.random() * 50));
+                  }),
+                  deferredStatsChecked.promise,
+                  testCompletedPromise(wq, workCount)]);
+  });
+
+
 });
