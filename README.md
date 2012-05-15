@@ -128,16 +128,16 @@ worker.workObservable().Subscribe(function(workItem){
 * ~~Work stop singals~~
 * Enable transactional queueing using redis primatives
 * Performance optimization
-  * --Refactor to remove SelectMany and borrow timeline from message notification--
-  * --Investigage why redis client is holding only memory--
-* --Flood control on queue restarts--
-* --Add semantics for repeated work sent to workers, where the work doesn't callback--
+  * ~~Refactor to remove SelectMany and borrow timeline from message notification~~
+  * ~~Investigage why redis client is holding only memory~~
+* ~~Flood control on queue restarts~~
+* ~~Add semantics for repeated work sent to workers, where the work doesn't callback~~
 * Add support for asynchronous work subscribers with incremental results
 * Add JoinMany operator to re-sequence completed with (with timeout)
 * Add queue management and monitoring UI
   * Pub/Sub for worker monitoring
   * Rickshaw + socket.io for realtime graphs
-* --Add timeout semantics for jobs--
+* ~~Add timeout semantics for jobs~~
 
 ## License ##
 
