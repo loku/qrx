@@ -3,15 +3,15 @@ var redis = require('redis'),
     uuid = require('node-uuid');
 
 
-var WorkQueueRx  = require('../lib/qrx').WorkQueueRx;   
+Qrx  = require('../lib/qrx');
 
 // create a new queue with well known name
-wq = new WorkQueueRx('test-wq');
-// clear any pending work (optional)
-wq.clear();
+wq = new Qrx();
 
 wq.enqueue('one');
 wq.enqueue('two');
+
+
 
 // subscribe for work
 wq.workObservable().Subscribe(function(workObj){

@@ -47,7 +47,7 @@ npm install qrx
 
 ```javascript
 // create a new queue with well known name
-wq = new WorkQueueRx('test-wq');
+wq = new WorkQueueRx();
 // clear any pending work (optional)
 wq.clear();
 
@@ -72,7 +72,7 @@ wq.completedObservable().Subscribe(function(completedWork){
 *(From: /test/qrx-test.js)*
 
 ```javascript
-var wqMaster = new WorkQueueRx('clean-test2');
+var wqMaster = new WorkQueueRx({qname: 'clean-test2'});
 
 var WORK_COUNT = 500;
 
@@ -83,13 +83,13 @@ for(var i=0; i < WORK_COUNT; i++){
 
 // two slaves serving 1 master
 var workReceived = 0;
-var slave1 = new WorkQueueRx('clean-test2');
+var slave1 = new WorkQueueRx({qname: 'clean-test2'});
 slave1.workObservable().Subscribe(function(workObj){
   workReceived++;
   workObj.callback(null, workObj.work + 3);
 });
 
-var slave2 = new WorkQueueRx('clean-test2');
+var slave2 = new WorkQueueRx({qname: 'clean-test2'});
 slave2.workObservable().Subscribe(function(workObj){
   workReceived++;
   workObj.callback(null, workObj.work + 3);
@@ -112,12 +112,12 @@ wqMaster.completedObservable().Subscribe(function(workItem){
 
 Rx.Observable.FromArray([1,2,3])
   // ForkMany usage
-  .ForkMany('test-q')
+  .ForkMany({qname: 'test-q'})
     .Subscribe(function(result){
       console.log(result);
     });
 
-var worker = new WorkQueueRx('test-q');
+var worker = new WorkQueueRx({qname: 'test-q'});
 worker.workObservable().Subscribe(function(workItem){
   workItem.callback(null, workItem.work + 1);
 });
